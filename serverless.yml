@@ -3,18 +3,18 @@ service: elasticpypi
 provider:
   name: aws
   runtime: python3.6
-  memorySize: 128
+  memorySize: 256
   stage: dev
   # profile: 'some-local-aws-config-profile'
-  # region: us-east-1
+  region: us-east-2
 
   environment:
     SERVICE: ${self:service}
     STAGE: '/${self:provider.stage}'
-    BUCKET: 'elasticpypi'             # CHANGE ME
+    BUCKET: 'cedari-ai-elasticpypi'             # CHANGE ME
     TABLE: 'elasticpypi'
     USERNAME: 'elasticpypi'
-    PASSWORD: 'something-secretive'   # CHANGE ME
+    PASSWORD: '/pvMv4VeX2`t^%Gb'   # CHANGE ME
     OVERWRITE: false
 
 plugins:
