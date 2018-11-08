@@ -10,9 +10,9 @@ provider:
 
   environment:
     SERVICE: ${self:service}
-    STAGE: '/${self:provider.stage}'
-    BUCKET: 'cedari-ai-elasticpypi'             # CHANGE ME
-    TABLE: 'elasticpypi'
+    STAGE: '/${self:custom.myStage}'
+    BUCKET: 'cedari-ai-elasticpypi-${self:custom.myStage}'             # CHANGE ME
+    TABLE: 'elasticpypi-${self:custom.myStage}'
     USERNAME: 'elasticpypi'
     PASSWORD: '/pvMv4VeX2`t^%Gb'   # CHANGE ME
     OVERWRITE: false
@@ -20,6 +20,7 @@ provider:
 plugins:
   - serverless-wsgi
   - serverless-apigw-binary
+  - serverless-domain-manager
 
 package:
   exclude:
@@ -67,6 +68,11 @@ functions:
     handler: elasticpypi.handler.auth
 
 custom:
+  myStage: ${opt:stage, self:provider.stage}
+  customDomain:
+    domainName: pypi-${self:custom.myStage}.cedar.ai
+    stage: ${self:custom.myStage}
+    createRoute53Record: true
   wsgi:
     app: elasticpypi.api.app
   apigwBinary:
