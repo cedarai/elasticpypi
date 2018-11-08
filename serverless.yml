@@ -10,7 +10,7 @@ provider:
 
   environment:
     SERVICE: ${self:service}
-    STAGE: '/${self:custom.myStage}'
+    STAGE: ''
     BUCKET: 'cedari-ai-elasticpypi-${self:custom.myStage}'             # CHANGE ME
     TABLE: 'elasticpypi-${self:custom.myStage}'
     USERNAME: 'elasticpypi'
