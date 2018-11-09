@@ -7,22 +7,22 @@ A fully functional, self-hosted  simple pypi service running on AWS.
 
 Cedar.AI Pypi uses basic authentication. Here are the endpoints and credentials for DEV and PROD:
 
-```
-DEV
+**DEV**
 
 https://pypi-dev.cedar.ai/simple/
 
 Username: elasticpypi
+
 Password: /pvMv4VeX2`t^%Gb
 
 
-PROD
+**PROD**
 
 https://pypi-prod.cedar.ai/simple/
 
 Username: elasticpypi
+
 Password: /pvMv4VeX2`t^%Gb
-```
 
 To browser without typing credential every time, install this [plugin](https://chrome.google.com/webstore/detail/multipass-for-http-basic/enhldmjbphoeibbpdhmjkchohnidgnah) and setup the credentials accordingly.
 
