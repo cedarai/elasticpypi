@@ -62,7 +62,7 @@ functions:
             identitySource: method.request.header.Authorization
             type: request
       - http:
-          path: max_version/{name}
+          path: max_version/{name}/{version}
           method: get
           integration: lambda-proxy
           authorizer:
@@ -113,6 +113,7 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE}
+        BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           -
             AttributeName: 'package_name'
@@ -137,14 +138,11 @@ resources:
               -
                 AttributeName: 'normalized_name'
                 KeyType: HASH
+              -
+                AttributeName: 'version'
+                KeyType: RANGE
             Projection:
                 ProjectionType: ALL
-            ProvisionedThroughput:
-                ReadCapacityUnits: 1
-                WriteCapacityUnits: 1
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
     DynamoDBIamPolicy:
       Type: AWS::IAM::Policy
       DependsOn: packagesTable

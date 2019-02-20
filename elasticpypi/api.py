@@ -30,8 +30,9 @@ def simple_name(name):
     packages = dynamodb.list_packages_by_name(db, name)
     return render_template('links.html', packages=packages, package=name, stage=config['stage'])
 
-@app.route('/max_version/<name>/')
-def max_version(name):
+
+@app.route('/max_version/<name>/<major_version>')
+def max_version(name, major_version):
     db = boto3.resource('dynamodb')
-    rev = dynamodb.get_max_version_by_name(db, name)
+    rev = dynamodb.get_max_version_by_name(db, name, major_version)
     return str(rev)

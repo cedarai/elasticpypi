@@ -1,4 +1,5 @@
 import urllib
+import re
 import boto3
 from boto3.dynamodb.conditions import Key
 from elasticpypi import name
@@ -30,27 +31,23 @@ def list_packages_by_name(dynamodb, package_name):
     packages = [(package['filename'], package['filename']) for package in sorted_packages]
     return packages
 
-def get_max_version_by_name(dynamodb, package_name):
+
+def get_max_version_by_name(dynamodb, package_name, major_version):
     _name = name.normalize(package_name)
     table = dynamodb.Table(TABLE)
     dynamodb_packages = table.query(
         IndexName='normalized_name-index',
-        KeyConditionExpression=Key('normalized_name').eq(_name),
+        KeyConditionExpression=Key('normalized_name').eq(_name) & Key('version').begins_with(major_version),
         ProjectionExpression='version',
         ScanIndexForward=False,
-    )    
-    versions = [(package['version'], package['version']) for package in dynamodb_packages['Items']]
-    maxRev = 0
-    maxVersion = None
-    for ver in versions:
-        m = re.search('[0-9]+\.[0-9]+\.([0-9]+)',ver)
-        if m:
-            rev = int(m.group(1))
-            if rev > maxRev:
-                maxRev = rev
-                maxVersion = m.group(0)
+        Limit=1,
+    )
+    if dynamodb_packages['Items']:
+        ver = dynamodb_packages['Items'][0]['version']
+        return ver
+    else:
+        return '%s.0' % major_version
 
-    return maxVersion
 
 def delete_item(version, table, filename):
     table.delete_item(
