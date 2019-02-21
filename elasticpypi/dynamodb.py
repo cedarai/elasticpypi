@@ -2,8 +2,10 @@ import urllib
 import re
 import boto3
 from boto3.dynamodb.conditions import Key
+from datetime import datetime
 from elasticpypi import name
 from elasticpypi.config import config
+import pytz
 
 TABLE = config['table']
 
@@ -27,8 +29,10 @@ def list_packages_by_name(dynamodb, package_name):
         ProjectionExpression='filename',
         ScanIndexForward=False,
     )
-    sorted_packages = sorted(dynamodb_packages['Items'], key=lambda k: k['filename'])
-    packages = [(package['filename'], package['filename']) for package in sorted_packages]
+    sorted_packages = sorted(
+        dynamodb_packages['Items'], key=lambda k: k['filename'])
+    packages = [(package['filename'], package['filename'])
+                for package in sorted_packages]
     return packages
 
 
@@ -37,7 +41,8 @@ def get_max_version_by_name(dynamodb, package_name, major_version):
     table = dynamodb.Table(TABLE)
     dynamodb_packages = table.query(
         IndexName='name_major_version-index',
-        KeyConditionExpression=Key('name_major_version').eq('%s-%s' % (_name, major_version)),
+        KeyConditionExpression=Key('name_major_version').eq(
+            '%s-%s' % (_name, major_version)),
         ProjectionExpression='version',
         ScanIndexForward=False,
         Limit=1,
@@ -47,6 +52,22 @@ def get_max_version_by_name(dynamodb, package_name, major_version):
         return ver
     else:
         return '%s.0' % major_version
+
+
+def get_latest_version_by_name(dynamodb, package_name):
+    _name = name.normalize(package_name)
+    table = dynamodb.Table(TABLE)
+    dynamodb_packages = table.query(
+        IndexName='normalized_name_created_time-index',
+        KeyConditionExpression=Key('normalized_name').eq(_name),
+        ProjectionExpression='version',
+        ScanIndexForward=False,
+        Limit=1,
+    )
+    if dynamodb_packages['Items']:
+        return dynamodb_packages['Items'][0]['version']
+    else:
+        return ''
 
 
 def delete_item(version, table, filename):
@@ -62,6 +83,8 @@ def put_item(version, filename, normalized_name, table):
     vp = version.split('.')
     name_major_version = '%s-%s.%s' % (normalized_name, vp[0], vp[1])
     minor_version = int(vp[2])
+    now = datetime.utcnow().replace(tzinfo=pytz.utc).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+
     table.put_item(
         Item={
             'package_name': urllib.parse.unquote_plus(filename),
@@ -70,6 +93,7 @@ def put_item(version, filename, normalized_name, table):
             'normalized_name': urllib.parse.unquote_plus(normalized_name),
             'name_major_version': urllib.parse.unquote_plus(name_major_version),
             'minor_version': minor_version,
+            'created_time': now
         }
     )
 
