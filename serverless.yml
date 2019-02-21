@@ -124,6 +124,12 @@ resources:
           -
             AttributeName: 'normalized_name'
             AttributeType: S
+          -
+            AttributeName: 'name_major_version'
+            AttributeType: S
+          -
+            AttributeName: 'minor_version'
+            AttributeType: 'N'
         KeySchema:
           -
             AttributeName: 'package_name'
@@ -140,6 +146,17 @@ resources:
                 KeyType: HASH
               -
                 AttributeName: 'version'
+                KeyType: RANGE
+            Projection:
+                ProjectionType: ALL
+          -
+            IndexName: 'name_major_version-index'
+            KeySchema:
+              -
+                AttributeName: 'name_major_version'
+                KeyType: HASH
+              -
+                AttributeName: 'minor_version'
                 KeyType: RANGE
             Projection:
                 ProjectionType: ALL

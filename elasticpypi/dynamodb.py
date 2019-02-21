@@ -36,8 +36,8 @@ def get_max_version_by_name(dynamodb, package_name, major_version):
     _name = name.normalize(package_name)
     table = dynamodb.Table(TABLE)
     dynamodb_packages = table.query(
-        IndexName='normalized_name-index',
-        KeyConditionExpression=Key('normalized_name').eq(_name) & Key('version').begins_with(major_version),
+        IndexName='name_major_version-index',
+        KeyConditionExpression=Key('name_major_version').eq('%s-%s' % (_name, major_version)),
         ProjectionExpression='version',
         ScanIndexForward=False,
         Limit=1,
@@ -59,12 +59,17 @@ def delete_item(version, table, filename):
 
 
 def put_item(version, filename, normalized_name, table):
+    vp = version.split('.')
+    name_major_version = '%s-%s.%s' % (normalized_name, vp[0], vp[1])
+    minor_version = int(vp[2])
     table.put_item(
         Item={
             'package_name': urllib.parse.unquote_plus(filename),
             'version': urllib.parse.unquote_plus(version),
             'filename': urllib.parse.unquote_plus(filename),
             'normalized_name': urllib.parse.unquote_plus(normalized_name),
+            'name_major_version': urllib.parse.unquote_plus(name_major_version),
+            'minor_version': minor_version,
         }
     )
 
