@@ -39,7 +39,7 @@ def max_version(name, major_version):
 
 
 @app.route('/latest_version/<name>')
-def max_version(name):
+def latest_version(name):
     db = boto3.resource('dynamodb')
     ver = dynamodb.get_latest_version_by_name(db, name)
     return ver
