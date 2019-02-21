@@ -130,6 +130,9 @@ resources:
           -
             AttributeName: 'minor_version'
             AttributeType: 'N'
+          -
+            AttributeName: 'created_time'
+            AttributeType: S
         KeySchema:
           -
             AttributeName: 'package_name'
@@ -160,6 +163,18 @@ resources:
                 KeyType: RANGE
             Projection:
                 ProjectionType: ALL
+          -
+            IndexName: 'normalized_name_created_time-index'
+            KeySchema:
+              -
+                AttributeName: 'normalized_name'
+                KeyType: HASH
+              -
+                AttributeName: 'created_time'
+                KeyType: RANGE
+            Projection:
+                ProjectionType: ALL
+
     DynamoDBIamPolicy:
       Type: AWS::IAM::Policy
       DependsOn: packagesTable
